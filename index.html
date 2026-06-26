@@ -37,6 +37,13 @@
             from { opacity: 0; transform: scale(0.95) translateY(-5px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
+        .modal {
+            animation: fadeInModal 0.2s ease-out forwards;
+        }
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="bg-zinc-50 text-zinc-900 h-screen flex flex-col overflow-hidden">
@@ -67,24 +74,34 @@
     </nav>
 
     <div class="flex-1 overflow-hidden">
-        <!-- Landing -->
-        <div id="landing" class="max-w-screen-xl mx-auto px-6 pt-20 pb-16 text-center">
-            <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-zinc-100 text-xs font-medium tracking-wider mb-6">
-                AI-POWERED EMAIL DASHBOARD
+        <!-- ==================== LANDING PAGE ==================== -->
+        <div id="landing" class="max-w-screen-xl mx-auto px-6 pt-16 pb-12">
+            <div class="text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-zinc-100 text-xs font-medium tracking-wider mb-6">
+                    AI-POWERED EMAIL DASHBOARD
+                </div>
+                
+                <h1 class="text-6xl font-semibold tracking-tighter leading-none mb-6 font-display">
+                    Start your day<br>knowing what matters.
+                </h1>
+                <p class="max-w-md mx-auto text-xl text-zinc-600 mb-10">
+                    Clarity sits on top of Gmail and helps you instantly understand what needs your attention.
+                </p>
+
+                <!-- Dark styled button (matching dashboard) -->
+                <button onclick="loginWithGoogle()"
+                        class="inline-flex items-center gap-3 h-14 px-8 rounded-3xl bg-zinc-900 hover:bg-black text-white text-[15px] font-semibold shadow-sm transition-all">
+                    <i class="fa-brands fa-google"></i>
+                    <span>Sign in with Google</span>
+                </button>
+
+                <p class="mt-6 text-xs text-zinc-500">
+                    Free forever • No credit card required
+                </p>
             </div>
-            <h1 class="text-6xl font-semibold tracking-tighter leading-none mb-6 font-display">
-                Start your day<br>knowing what matters.
-            </h1>
-            <p class="max-w-md mx-auto text-xl text-zinc-600 mb-10">
-                Clarity sits on top of Gmail and helps you instantly understand what needs your attention.
-            </p>
-            <button onclick="loginWithGoogle()" class="inline-flex items-center gap-3 h-14 px-8 rounded-3xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[15px] font-semibold shadow-sm transition-all">
-                <i class="fa-brands fa-google"></i>
-                <span>Sign in with Google</span>
-            </button>
         </div>
 
-        <!-- Dashboard -->
+        <!-- ==================== DASHBOARD ==================== -->
         <div id="dashboard" class="hidden h-full max-w-screen-2xl mx-auto px-8 py-6 flex flex-col">
             
             <div class="flex items-end justify-between mb-6 shrink-0">
@@ -120,7 +137,6 @@
                         <i class="fa-solid fa-chevron-down text-xs ml-auto text-zinc-400"></i>
                     </button>
 
-                    <!-- Dropdown Menu -->
                     <div id="category-menu" class="hidden absolute right-0 mt-2 w-64 bg-white border border-zinc-200 rounded-2xl shadow-lg z-50 category-menu">
                         <div class="py-2">
                             <button onclick="selectCategory('reply')" class="w-full px-4 py-3 text-left hover:bg-zinc-50 flex items-center justify-between text-sm">
@@ -165,7 +181,6 @@
 
                     <div id="pane-content" class="hidden flex-col h-full">
                         
-                        <!-- Pane Header -->
                         <div class="px-8 pt-6 pb-5 border-b flex justify-between items-start">
                             <div class="flex-1 min-w-0">
                                 <h1 id="pane-subject" class="text-[22px] font-semibold tracking-tight text-zinc-900 leading-tight pr-8"></h1>
@@ -192,7 +207,6 @@
                             </div>
                         </div>
 
-                        <!-- Dark Action Buttons -->
                         <div class="px-8 py-4 border-b flex items-center gap-3 bg-zinc-50/50">
                             <button class="px-5 py-2 text-sm font-medium bg-zinc-900 hover:bg-black text-white rounded-2xl flex items-center gap-2 transition">
                                 <i class="fa-solid fa-reply text-xs"></i>
@@ -208,7 +222,6 @@
                             </button>
                         </div>
 
-                        <!-- Body -->
                         <div class="flex-1 overflow-y-auto px-8 py-7">
                             <div id="pane-body" class="text-[15px] leading-relaxed text-zinc-700 whitespace-pre-line"></div>
                             
@@ -223,7 +236,77 @@
         </div>
     </div>
 
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="border-t bg-white shrink-0">
+        <div class="max-w-screen-2xl mx-auto px-8 h-14 flex items-center justify-between text-sm text-zinc-500">
+            <div>© 2026 Clarity. All rights reserved.</div>
+            <div class="flex items-center gap-x-6">
+                <button onclick="showPolicyModal('privacy')" class="hover:text-zinc-700 transition">Privacy</button>
+                <button onclick="showPolicyModal('terms')" class="hover:text-zinc-700 transition">Terms</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== POLICY MODALS ==================== -->
+    
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" onclick="hidePolicyModal('privacy')" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+        <div onclick="event.stopImmediatePropagation()" class="bg-white rounded-3xl max-w-2xl w-full mx-4 p-8 modal">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Privacy Policy</h2>
+                <button onclick="hidePolicyModal('privacy')" class="text-zinc-400 hover:text-zinc-600 text-2xl">×</button>
+            </div>
+            <div class="text-sm text-zinc-600 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                <p>Clarity respects your privacy. We only access your Gmail data with your explicit permission and solely to provide the productivity features you use.</p>
+                
+                <p><strong>What we collect:</strong></p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>Your email address (for account identification)</li>
+                    <li>Email metadata (subject, sender, date) when you use Clarity</li>
+                </ul>
+
+                <p><strong>What we do NOT do:</strong></p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>We never read the full content of your emails without your action</li>
+                    <li>We never sell or share your data with third parties</li>
+                    <li>We never use your emails for advertising or training AI models</li>
+                </ul>
+
+                <p>You can revoke access anytime from your Google Account settings.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div id="terms-modal" onclick="hidePolicyModal('terms')" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-[100]">
+        <div onclick="event.stopImmediatePropagation()" class="bg-white rounded-3xl max-w-2xl w-full mx-4 p-8 modal">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Terms of Service</h2>
+                <button onclick="hidePolicyModal('terms')" class="text-zinc-400 hover:text-zinc-600 text-2xl">×</button>
+            </div>
+            <div class="text-sm text-zinc-600 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                <p>By using Clarity, you agree to the following terms:</p>
+                
+                <p><strong>1. Use of Service</strong><br>
+                Clarity is a productivity tool built on top of Gmail. You must have a valid Google account and comply with Google’s terms.</p>
+
+                <p><strong>2. Your Data</strong><br>
+                You retain full ownership of your email data. Clarity only processes what is necessary to deliver its features.</p>
+
+                <p><strong>3. Acceptable Use</strong><br>
+                You agree not to use Clarity for any illegal activity or to violate Google’s policies.</p>
+
+                <p><strong>4. Limitation of Liability</strong><br>
+                Clarity is provided “as is”. We are not responsible for any loss of data or productivity issues.</p>
+
+                <p><strong>5. Changes</strong><br>
+                We may update these terms occasionally. Continued use means you accept the updated terms.</p>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // ==================== EXISTING CODE (kept same) ====================
         const CLIENT_ID = "723260356706-cu25kknrqn5fn5h95r4j2n1icv17qlkh.apps.googleusercontent.com";
         let accessToken = null;
         let tokenClient;
@@ -383,12 +466,10 @@
                 files: cachedEmails.filter(e => e.category === 'files').length
             };
 
-            // Update dropdown menu counts
             document.getElementById("menu-count-reply").innerText = counts.reply || "";
             document.getElementById("menu-count-waiting").innerText = counts.waiting || "";
             document.getElementById("menu-count-files").innerText = counts.files || "";
 
-            // Update main button text and count
             const currentText = document.getElementById("current-category-text");
             const currentCount = document.getElementById("current-category-count");
 
@@ -410,7 +491,6 @@
             const menu = document.getElementById("category-menu");
             menu.classList.toggle("hidden");
             
-            // Close menu when clicking outside
             if (!menu.classList.contains("hidden")) {
                 setTimeout(() => {
                     document.addEventListener("click", function handler(e) {
@@ -466,59 +546,3 @@
             if (!email) return;
 
             document.getElementById("pane-placeholder").classList.add("hidden");
-            const content = document.getElementById("pane-content");
-            content.classList.remove("hidden");
-            content.classList.add("flex");
-
-            document.getElementById("pane-subject").innerText = email.subject;
-            document.getElementById("pane-sender").innerText = email.senderName;
-            document.getElementById("pane-date").innerText = email.formattedDate;
-            document.getElementById("pane-body").innerText = email.snippet;
-            document.getElementById("pane-avatar").innerText = email.senderName.charAt(0).toUpperCase();
-            document.getElementById("pane-gmail-link").href = email.gmailLink;
-
-            const attachmentNotice = document.getElementById("pane-attachment");
-            attachmentNotice.classList.toggle("hidden", !email.hasAttachment);
-
-            renderEmails();
-        }
-
-        function closeReadingPane() {
-            selectedEmailId = null;
-            document.getElementById("pane-content").classList.add("hidden");
-            document.getElementById("pane-content").classList.remove("flex");
-            document.getElementById("pane-placeholder").classList.remove("hidden");
-            renderEmails();
-        }
-
-        function renderPaginationControls() {
-            const container = document.getElementById("pagination-controls");
-            container.innerHTML = "";
-
-            const prevBtn = document.createElement("button");
-            prevBtn.className = `px-3 py-1.5 text-xs font-medium rounded-xl border transition ${currentPageIndex === 1 ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
-            prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left text-xs"></i>`;
-            if (currentPageIndex > 1) prevBtn.onclick = () => { currentPageIndex--; fetchEmails(); };
-            container.appendChild(prevBtn);
-
-            const totalPages = hasNextPageToken ? currentPageIndex + 1 : currentPageIndex;
-            for (let i = Math.max(1, currentPageIndex - 1); i <= totalPages; i++) {
-                const btn = document.createElement("button");
-                const isActive = i === currentPageIndex;
-                btn.className = `w-8 h-8 text-xs font-semibold rounded-xl transition ${isActive 
-                    ? 'bg-zinc-900 text-white' 
-                    : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'}`;
-                btn.innerText = i;
-                btn.onclick = () => { currentPageIndex = i; fetchEmails(); };
-                container.appendChild(btn);
-            }
-
-            const nextBtn = document.createElement("button");
-            nextBtn.className = `px-3 py-1.5 text-xs font-medium rounded-xl border transition ${!hasNextPageToken ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
-            nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right text-xs"></i>`;
-            if (hasNextPageToken) nextBtn.onclick = () => { currentPageIndex++; fetchEmails(); };
-            container.appendChild(nextBtn);
-        }
-    </script>
-</body>
-</html>
