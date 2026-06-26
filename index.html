@@ -30,6 +30,13 @@
         .reading-pane {
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.06);
         }
+        .category-menu {
+            animation: fadeInScale 0.1s ease-out forwards;
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
     </style>
 </head>
 <body class="bg-zinc-50 text-zinc-900 h-screen flex flex-col overflow-hidden">
@@ -87,36 +94,57 @@
                 </div>
             </div>
 
-            <!-- Search -->
-            <div class="mb-5 max-w-md shrink-0">
-                <form onsubmit="handleSearch(event)" class="flex items-center gap-2">
-                    <div class="relative flex-1">
-                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-zinc-400"></i>
-                        <input id="search-input" type="text" placeholder="Search emails..." 
-                               class="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                    </div>
-                    <button type="submit" 
-                            class="px-6 py-3 bg-zinc-900 hover:bg-black text-white text-sm font-medium rounded-2xl transition flex items-center gap-2">
-                        Search
+            <!-- Search + Category Menu -->
+            <div class="flex items-center justify-between mb-5 gap-4 shrink-0">
+                
+                <!-- Search -->
+                <div class="flex-1 max-w-md">
+                    <form onsubmit="handleSearch(event)" class="flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-search absolute left-4 top-3.5 text-zinc-400"></i>
+                            <input id="search-input" type="text" placeholder="Search emails..." 
+                                   class="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                        </div>
+                        <button type="submit" class="px-6 py-3 bg-zinc-900 hover:bg-black text-white text-sm font-medium rounded-2xl transition flex items-center gap-2">
+                            Search
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Category Dropdown Menu -->
+                <div class="relative">
+                    <button onclick="toggleCategoryMenu()" 
+                            class="flex items-center gap-3 px-5 py-3 bg-white border border-zinc-200 hover:border-zinc-300 rounded-2xl text-sm font-medium transition min-w-[200px]">
+                        <span id="current-category-text">Needs Reply</span>
+                        <span id="current-category-count" class="px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-600 rounded-full">0</span>
+                        <i class="fa-solid fa-chevron-down text-xs ml-auto text-zinc-400"></i>
                     </button>
-                </form>
+
+                    <!-- Dropdown Menu -->
+                    <div id="category-menu" class="hidden absolute right-0 mt-2 w-64 bg-white border border-zinc-200 rounded-2xl shadow-lg z-50 category-menu">
+                        <div class="py-2">
+                            <button onclick="selectCategory('reply')" class="w-full px-4 py-3 text-left hover:bg-zinc-50 flex items-center justify-between text-sm">
+                                <span>Needs Reply</span>
+                                <span id="menu-count-reply" class="px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-600 rounded-full">0</span>
+                            </button>
+                            <button onclick="selectCategory('waiting')" class="w-full px-4 py-3 text-left hover:bg-zinc-50 flex items-center justify-between text-sm">
+                                <span>Waiting On</span>
+                                <span id="menu-count-waiting" class="px-2.5 py-0.5 text-xs font-semibold bg-zinc-100 text-zinc-600 rounded-full">0</span>
+                            </button>
+                            <button onclick="selectCategory('files')" class="w-full px-4 py-3 text-left hover:bg-zinc-50 flex items-center justify-between text-sm">
+                                <span>With Files</span>
+                                <span id="menu-count-files" class="px-2.5 py-0.5 text-xs font-semibold bg-zinc-100 text-zinc-600 rounded-full">0</span>
+                            </button>
+                            <div class="border-t my-1"></div>
+                            <button onclick="selectCategory('all')" class="w-full px-4 py-3 text-left hover:bg-zinc-50 flex items-center justify-between text-sm">
+                                <span>All Recent</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Tabs -->
-            <div class="flex gap-8 border-b border-zinc-200 mb-4 shrink-0">
-                <button id="tab-reply" onclick="switchTab('reply')" class="pb-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2">
-                    Needs Reply <span id="count-reply" class="text-xs font-medium px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full"></span>
-                </button>
-                <button id="tab-waiting" onclick="switchTab('waiting')" class="pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700 flex items-center gap-2">
-                    Waiting On <span id="count-waiting" class="text-xs font-medium px-2 py-0.5 bg-zinc-100 text-zinc-500 rounded-full"></span>
-                </button>
-                <button id="tab-files" onclick="switchTab('files')" class="pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700 flex items-center gap-2">
-                    With Files <span id="count-files" class="text-xs font-medium px-2 py-0.5 bg-zinc-100 text-zinc-500 rounded-full"></span>
-                </button>
-                <button id="tab-all" onclick="switchTab('all')" class="pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700">All Recent</button>
-            </div>
-
-            <!-- Main Content -->
+            <!-- Email List + Reading Pane -->
             <div class="flex-1 flex gap-6 min-h-0 overflow-hidden">
                 
                 <!-- Email List -->
@@ -342,16 +370,64 @@
 
                 renderEmails();
                 renderPaginationControls();
-                updateTabCounts();
+                updateCategoryUI();
             } catch (err) {
                 emailList.innerHTML = `<div class="p-6 text-red-500 text-sm">Failed to load emails.</div>`;
             }
         }
 
-        function updateTabCounts() {
-            document.getElementById("count-reply").innerText = cachedEmails.filter(e => e.category === 'reply').length || "";
-            document.getElementById("count-waiting").innerText = cachedEmails.filter(e => e.category === 'waiting').length || "";
-            document.getElementById("count-files").innerText = cachedEmails.filter(e => e.category === 'files').length || "";
+        function updateCategoryUI() {
+            const counts = {
+                reply: cachedEmails.filter(e => e.category === 'reply').length,
+                waiting: cachedEmails.filter(e => e.category === 'waiting').length,
+                files: cachedEmails.filter(e => e.category === 'files').length
+            };
+
+            // Update dropdown menu counts
+            document.getElementById("menu-count-reply").innerText = counts.reply || "";
+            document.getElementById("menu-count-waiting").innerText = counts.waiting || "";
+            document.getElementById("menu-count-files").innerText = counts.files || "";
+
+            // Update main button text and count
+            const currentText = document.getElementById("current-category-text");
+            const currentCount = document.getElementById("current-category-count");
+
+            let label = "All Recent";
+            let count = 0;
+
+            if (currentTab === 'reply') { label = "Needs Reply"; count = counts.reply; }
+            else if (currentTab === 'waiting') { label = "Waiting On"; count = counts.waiting; }
+            else if (currentTab === 'files') { label = "With Files"; count = counts.files; }
+
+            currentText.innerText = label;
+            currentCount.innerText = count || "";
+            currentCount.className = currentTab === 'reply' 
+                ? "px-2.5 py-0.5 text-xs font-semibold bg-blue-100 text-blue-600 rounded-full"
+                : "px-2.5 py-0.5 text-xs font-semibold bg-zinc-100 text-zinc-600 rounded-full";
+        }
+
+        function toggleCategoryMenu() {
+            const menu = document.getElementById("category-menu");
+            menu.classList.toggle("hidden");
+            
+            // Close menu when clicking outside
+            if (!menu.classList.contains("hidden")) {
+                setTimeout(() => {
+                    document.addEventListener("click", function handler(e) {
+                        if (!menu.contains(e.target)) {
+                            menu.classList.add("hidden");
+                            document.removeEventListener("click", handler);
+                        }
+                    }, { once: true });
+                }, 10);
+            }
+        }
+
+        function selectCategory(tabId) {
+            currentTab = tabId;
+            document.getElementById("category-menu").classList.add("hidden");
+            renderEmails();
+            updateCategoryUI();
         }
 
         function renderEmails() {
@@ -415,29 +491,16 @@
             renderEmails();
         }
 
-        function switchTab(tabId) {
-            currentTab = tabId;
-            ['reply', 'waiting', 'files', 'all'].forEach(id => {
-                const el = document.getElementById(`tab-${id}`);
-                el.className = id === tabId 
-                    ? "pb-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2"
-                    : "pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700 flex items-center gap-2";
-            });
-            renderEmails();
-        }
-
         function renderPaginationControls() {
             const container = document.getElementById("pagination-controls");
             container.innerHTML = "";
 
-            // Previous
             const prevBtn = document.createElement("button");
             prevBtn.className = `px-3 py-1.5 text-xs font-medium rounded-xl border transition ${currentPageIndex === 1 ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
             prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left text-xs"></i>`;
             if (currentPageIndex > 1) prevBtn.onclick = () => { currentPageIndex--; fetchEmails(); };
             container.appendChild(prevBtn);
 
-            // Page numbers
             const totalPages = hasNextPageToken ? currentPageIndex + 1 : currentPageIndex;
             for (let i = Math.max(1, currentPageIndex - 1); i <= totalPages; i++) {
                 const btn = document.createElement("button");
@@ -450,7 +513,6 @@
                 container.appendChild(btn);
             }
 
-            // Next
             const nextBtn = document.createElement("button");
             nextBtn.className = `px-3 py-1.5 text-xs font-medium rounded-xl border transition ${!hasNextPageToken ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
             nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right text-xs"></i>`;
