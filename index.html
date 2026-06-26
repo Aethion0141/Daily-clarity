@@ -27,7 +27,6 @@
             background-color: #f0f7ff;
             border-color: #3b82f6;
         }
-
         .reading-pane {
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.06);
         }
@@ -45,7 +44,6 @@
                 <span class="font-semibold text-2xl tracking-tighter">Clarity</span>
             </div>
 
-            <!-- User Header -->
             <div id="user-header" class="hidden items-center gap-x-3">
                 <div class="flex items-center gap-x-3 px-4 py-1.5 bg-zinc-100 rounded-2xl">
                     <div class="w-8 h-8 rounded-xl bg-zinc-300 flex items-center justify-center">
@@ -53,8 +51,7 @@
                     </div>
                     <div id="user-email" class="text-sm font-medium text-zinc-700"></div>
                 </div>
-                <button onclick="logout()" 
-                        class="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-xl transition flex items-center gap-x-2">
+                <button onclick="logout()" class="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-xl transition flex items-center gap-x-2">
                     <i class="fa-solid fa-sign-out-alt"></i>
                     <span>Sign out</span>
                 </button>
@@ -74,8 +71,7 @@
             <p class="max-w-md mx-auto text-xl text-zinc-600 mb-10">
                 Clarity sits on top of Gmail and helps you instantly understand what needs your attention.
             </p>
-            <button onclick="loginWithGoogle()"
-                    class="inline-flex items-center gap-3 h-14 px-8 rounded-3xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[15px] font-semibold shadow-sm transition-all">
+            <button onclick="loginWithGoogle()" class="inline-flex items-center gap-3 h-14 px-8 rounded-3xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[15px] font-semibold shadow-sm transition-all">
                 <i class="fa-brands fa-google"></i>
                 <span>Sign in with Google</span>
             </button>
@@ -95,8 +91,7 @@
             <div class="mb-5 max-w-md shrink-0">
                 <form onsubmit="handleSearch(event)" class="relative">
                     <i class="fa-solid fa-search absolute left-4 top-3.5 text-zinc-400"></i>
-                    <input id="search-input" type="text" placeholder="Search emails..."
-                           class="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <input id="search-input" type="text" placeholder="Search emails..." class="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                 </form>
             </div>
 
@@ -138,27 +133,31 @@
                     <div id="pane-content" class="hidden flex-col h-full">
                         
                         <!-- Pane Header -->
-                        <div class="px-8 pt-7 pb-6 border-b">
-                            <div class="flex justify-between items-start gap-4">
-                                <div class="flex-1 min-w-0">
-                                    <h1 id="pane-subject" class="text-[22px] font-semibold tracking-tight text-zinc-900 leading-tight"></h1>
-                                    
-                                    <div class="flex items-center gap-3 mt-5">
-                                        <div class="w-9 h-9 rounded-2xl bg-zinc-200 flex items-center justify-center font-semibold text-zinc-600 flex-shrink-0" id="pane-avatar"></div>
-                                        <div class="min-w-0">
-                                            <div id="pane-sender" class="font-semibold text-zinc-800"></div>
-                                            <div id="pane-date" class="text-xs text-zinc-500 mt-0.5"></div>
-                                        </div>
+                        <div class="px-8 pt-6 pb-5 border-b flex justify-between items-start">
+                            <div class="flex-1 min-w-0">
+                                <h1 id="pane-subject" class="text-[22px] font-semibold tracking-tight text-zinc-900 leading-tight pr-8"></h1>
+                                
+                                <div class="flex items-center gap-3 mt-5">
+                                    <div class="w-9 h-9 rounded-2xl bg-zinc-200 flex items-center justify-center font-semibold text-zinc-600 flex-shrink-0" id="pane-avatar"></div>
+                                    <div class="min-w-0">
+                                        <div id="pane-sender" class="font-semibold text-zinc-800"></div>
+                                        <div id="pane-date" class="text-xs text-zinc-500 mt-0.5"></div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <a id="pane-gmail-link" href="#" target="_blank"
-                                       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-zinc-300 hover:bg-zinc-50 rounded-2xl transition">
-                                        <span>Open in Gmail</span>
-                                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                                    </a>
-                                </div>
+                            <div class="flex items-center gap-3">
+                                <!-- Close Button -->
+                                <button onclick="closeReadingPane()" 
+                                        class="text-zinc-400 hover:text-zinc-600 transition p-2">
+                                    <i class="fa-solid fa-times text-xl"></i>
+                                </button>
+
+                                <a id="pane-gmail-link" href="#" target="_blank"
+                                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-zinc-300 hover:bg-zinc-50 rounded-2xl transition">
+                                    <span>Open in Gmail</span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                                </a>
                             </div>
                         </div>
 
@@ -182,7 +181,6 @@
                         <div class="flex-1 overflow-y-auto px-8 py-7">
                             <div id="pane-body" class="text-[15px] leading-relaxed text-zinc-700 whitespace-pre-line"></div>
                             
-                            <!-- Attachment indicator in pane -->
                             <div id="pane-attachment" class="hidden mt-6 pt-5 border-t text-sm text-zinc-600 flex items-center gap-2">
                                 <i class="fa-solid fa-paperclip"></i>
                                 <span>This email has attachments</span>
@@ -214,10 +212,7 @@
                 client_id: CLIENT_ID,
                 scope: "https://www.googleapis.com/auth/gmail.readonly",
                 callback: async (response) => {
-                    if (response.error) {
-                        alert("Failed to connect: " + response.error);
-                        return;
-                    }
+                    if (response.error) return alert("Failed to connect: " + response.error);
                     accessToken = response.access_token;
 
                     document.getElementById("landing").classList.add("hidden");
@@ -239,9 +234,7 @@
                 const data = await res.json();
                 userEmail = data.emailAddress;
                 document.getElementById("user-email").innerText = userEmail;
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) {}
         }
 
         function loginWithGoogle() {
@@ -266,10 +259,7 @@
             const emailList = document.getElementById("email-list");
             emailList.innerHTML = Array(5).fill(0).map(() => `
                 <div class="bg-white border border-zinc-200 rounded-2xl p-5 animate-pulse">
-                    <div class="flex justify-between mb-3">
-                        <div class="h-4 bg-zinc-200 rounded w-2/5"></div>
-                        <div class="h-3 bg-zinc-200 rounded w-10"></div>
-                    </div>
+                    <div class="flex justify-between mb-3"><div class="h-4 bg-zinc-200 rounded w-2/5"></div><div class="h-3 bg-zinc-200 rounded w-10"></div></div>
                     <div class="h-4 bg-zinc-200 rounded w-4/5"></div>
                 </div>
             `).join('');
@@ -321,14 +311,13 @@
                         if (!isNaN(d.getTime())) {
                             const today = new Date();
                             if (d.toDateString() === today.toDateString()) formattedDate = "Today";
-                            else if (d.toDateString() === new Date(today.setDate(today.getDate()-1)).toDateString()) formattedDate = "Yesterday";
+                            else if (d.toDateString() === new Date(today.setDate(today.getDate() - 1)).toDateString()) formattedDate = "Yesterday";
                             else formattedDate = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
                         }
                     }
 
                     const senderName = from.split("<")[0].trim() || from;
                     const fullText = `${subject} ${snippet}`.toLowerCase();
-
                     let category = 'all';
                     if (replyKeywords.some(k => fullText.includes(k)) || fullText.includes("?")) category = 'reply';
                     else if (waitingKeywords.some(k => fullText.includes(k))) category = 'waiting';
@@ -352,7 +341,6 @@
                 renderPaginationControls();
                 updateTabCounts();
             } catch (err) {
-                console.error(err);
                 emailList.innerHTML = `<div class="p-6 text-red-500 text-sm">Failed to load emails.</div>`;
             }
         }
@@ -366,7 +354,6 @@
         function renderEmails() {
             const container = document.getElementById("email-list");
             container.innerHTML = "";
-
             const filtered = cachedEmails.filter(email => currentTab === 'all' || email.category === currentTab);
 
             if (filtered.length === 0) {
@@ -378,7 +365,6 @@
                 const isSelected = email.id === selectedEmailId;
                 const card = document.createElement("div");
                 card.className = `email-card p-5 rounded-2xl border cursor-pointer ${isSelected ? 'selected border-blue-500' : 'bg-white border-zinc-200 hover:border-zinc-300'}`;
-
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-1.5">
                         <span class="font-semibold text-sm truncate pr-3">${email.senderName}</span>
@@ -412,14 +398,17 @@
             document.getElementById("pane-avatar").innerText = email.senderName.charAt(0).toUpperCase();
             document.getElementById("pane-gmail-link").href = email.gmailLink;
 
-            // Show attachment notice in pane
             const attachmentNotice = document.getElementById("pane-attachment");
-            if (email.hasAttachment) {
-                attachmentNotice.classList.remove("hidden");
-            } else {
-                attachmentNotice.classList.add("hidden");
-            }
+            attachmentNotice.classList.toggle("hidden", !email.hasAttachment);
 
+            renderEmails();
+        }
+
+        function closeReadingPane() {
+            selectedEmailId = null;
+            document.getElementById("pane-content").classList.add("hidden");
+            document.getElementById("pane-content").classList.remove("flex");
+            document.getElementById("pane-placeholder").classList.remove("hidden");
             renderEmails();
         }
 
@@ -427,11 +416,9 @@
             currentTab = tabId;
             ['reply', 'waiting', 'files', 'all'].forEach(id => {
                 const el = document.getElementById(`tab-${id}`);
-                if (id === tabId) {
-                    el.className = "pb-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2";
-                } else {
-                    el.className = "pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700 flex items-center gap-2";
-                }
+                el.className = id === tabId 
+                    ? "pb-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2"
+                    : "pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700 flex items-center gap-2";
             });
             renderEmails();
         }
