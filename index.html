@@ -9,115 +9,188 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body { font-family: 'Inter', system-ui, sans-serif; }
+        .font-display { font-family: 'Space Grotesk', system-ui, sans-serif; }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #d4d4d8; }
+
+        .email-card {
+            transition: all 0.1s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        .email-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+        }
+        .email-card.selected {
+            background-color: #f0f7ff;
+            border-color: #3b82f6;
+        }
+
+        .reading-pane {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.06), 0 4px 6px -4px rgb(0 0 0 / 0.06);
+        }
     </style>
 </head>
 <body class="bg-zinc-50 text-zinc-900 h-screen flex flex-col overflow-hidden">
 
+    <!-- Top Navigation -->
     <nav class="border-b bg-white shrink-0">
-        <div class="max-w-screen-2xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="max-w-screen-2xl mx-auto px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-x-3">
                 <div class="w-9 h-9 rounded-2xl bg-[#2563eb] flex items-center justify-center">
                     <span class="text-white font-bold text-2xl">C</span>
                 </div>
-                <span class="font-semibold text-2xl tracking-tight">Clarity</span>
+                <span class="font-semibold text-2xl tracking-tighter">Clarity</span>
             </div>
-            <div>
-                <button id="nav-action-btn" onclick="document.getElementById('landing').scrollIntoView({ behavior: 'smooth' })" 
-                        class="px-5 py-2 text-sm font-medium rounded-2xl border hover:bg-zinc-100 transition">
-                    Learn More
+
+            <!-- User Header -->
+            <div id="user-header" class="hidden items-center gap-x-3">
+                <div class="flex items-center gap-x-3 px-4 py-1.5 bg-zinc-100 rounded-2xl">
+                    <div class="w-8 h-8 rounded-xl bg-zinc-300 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-zinc-600 text-sm"></i>
+                    </div>
+                    <div id="user-email" class="text-sm font-medium text-zinc-700"></div>
+                </div>
+                <button onclick="logout()" 
+                        class="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-xl transition flex items-center gap-x-2">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    <span>Sign out</span>
                 </button>
             </div>
         </div>
     </nav>
 
-    <div class="flex-1 overflow-y-auto min-h-0">
-        
+    <div class="flex-1 overflow-hidden">
+        <!-- Landing -->
         <div id="landing" class="max-w-screen-xl mx-auto px-6 pt-20 pb-16 text-center">
             <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-zinc-100 text-xs font-medium tracking-wider mb-6">
                 AI-POWERED EMAIL DASHBOARD
             </div>
-            <h1 class="text-6xl font-semibold tracking-tighter leading-none mb-6">
+            <h1 class="text-6xl font-semibold tracking-tighter leading-none mb-6 font-display">
                 Start your day<br>knowing what matters.
             </h1>
             <p class="max-w-md mx-auto text-xl text-zinc-600 mb-10">
                 Clarity sits on top of Gmail and helps you instantly understand what needs your attention.
             </p>
-            <button onclick="loginWithGoogle()" 
+            <button onclick="loginWithGoogle()"
                     class="inline-flex items-center gap-3 h-14 px-8 rounded-3xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[15px] font-semibold shadow-sm transition-all">
                 <i class="fa-brands fa-google"></i>
                 <span>Sign in with Google</span>
             </button>
         </div>
 
-        <div id="dashboard" class="hidden h-full max-w-screen-2xl mx-auto px-6 py-6 flex flex-col">
+        <!-- Dashboard -->
+        <div id="dashboard" class="hidden h-full max-w-screen-2xl mx-auto px-8 py-6 flex flex-col">
             
-            <div class="flex items-center justify-between mb-4 shrink-0">
+            <div class="flex items-end justify-between mb-6 shrink-0">
                 <div>
-                    <h2 class="text-2xl font-semibold tracking-tight">Good morning.</h2>
-                    <p class="text-sm text-zinc-500">Here’s what matters in your inbox today.</p>
+                    <h2 class="text-3xl font-semibold tracking-tight">Good morning.</h2>
+                    <p class="text-zinc-500 mt-1">Here’s what matters in your inbox today.</p>
                 </div>
             </div>
 
-            <div class="mb-4 shrink-0 max-w-[420px]">
-                <form onsubmit="handleSearch(event)" class="relative flex items-center">
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 text-zinc-400 text-sm"></i>
-                    <input id="search-input" type="text" placeholder="Search mail (e.g. from:boss, is:unread)" 
-                           class="w-full pl-10 pr-20 py-2.5 bg-white border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" />
-                    <button type="submit" class="absolute right-2 px-3 py-1 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium rounded-lg transition">
-                        Search
-                    </button>
+            <!-- Search -->
+            <div class="mb-5 max-w-md shrink-0">
+                <form onsubmit="handleSearch(event)" class="relative">
+                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-zinc-400"></i>
+                    <input id="search-input" type="text" placeholder="Search emails..."
+                           class="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                 </form>
             </div>
 
-            <div id="emails-section" class="hidden flex-1 flex flex-col min-h-0">
-                <div class="flex gap-6 border-b border-zinc-200 mb-4 shrink-0">
-                    <button id="tab-reply" onclick="switchTab('reply')" class="pb-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600">Needs Reply</button>
-                    <button id="tab-waiting" onclick="switchTab('waiting')" class="pb-3 text-sm font-medium text-zinc-500 border-b-2 border-transparent hover:text-zinc-800">Waiting On</button>
-                    <button id="tab-files" onclick="switchTab('files')" class="pb-3 text-sm font-medium text-zinc-500 border-b-2 border-transparent hover:text-zinc-800">With Files</button>
-                    <button id="tab-all" onclick="switchTab('all')" class="pb-3 text-sm font-medium text-zinc-500 border-b-2 border-transparent hover:text-zinc-800">All Recent</button>
-                </div>
-                
-                <div class="flex-1 flex gap-6 min-h-0 overflow-hidden pb-2">
-                    
-                    <div class="w-full md:w-[420px] shrink-0 flex flex-col h-full min-h-0">
-                        <div id="email-list" class="flex-1 overflow-y-auto space-y-3 pr-2 block"></div>
-                        
-                        <div id="pagination-controls" class="py-3 border-t bg-zinc-50 flex items-center justify-center gap-1 shrink-0"></div>
-                    </div>
-
-                    <div id="reading-pane" class="hidden md:flex flex-1 bg-white border border-zinc-200 rounded-2xl overflow-y-auto p-8 flex-col shadow-sm">
-                        <div id="pane-placeholder" class="m-auto text-center text-zinc-400">
-                            <i class="fa-regular fa-envelope text-4xl mb-3 block text-zinc-300"></i>
-                            <p class="text-sm">Select an email to read its details</p>
-                        </div>
-                        <div id="pane-content" class="hidden flex-col h-full">
-                            <button onclick="goBackToList()" class="md:hidden flex items-center gap-2 text-blue-600 mb-5 font-semibold text-sm self-start">
-                                <i class="fa-solid fa-arrow-left"></i> Back to list
-                            </button>
-
-                            <div class="flex justify-between items-start border-b pb-5 mb-6">
-                                <div>
-                                    <h1 id="pane-subject" class="text-xl font-semibold text-zinc-900 tracking-tight mb-2">Subject Heading</h1>
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-7 h-7 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-xs text-zinc-600" id="pane-avatar">U</div>
-                                        <span id="pane-sender" class="text-sm font-medium text-zinc-700">Sender Identity</span>
-                                    </div>
-                                </div>
-                                <div id="pane-date-container"></div>
-                            </div>
-                            <div id="pane-body" class="text-zinc-600 text-[15px] leading-relaxed whitespace-pre-line flex-1">
-                                Text contents go here...
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+            <!-- Tabs -->
+            <div class="flex gap-8 border-b border-zinc-200 mb-4 shrink-0">
+                <button id="tab-reply" onclick="switchTab('reply')" class="pb-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2">
+                    Needs Reply <span id="count-reply" class="text-xs font-medium px-2 py-0.5 bg-blue-100 text-blue-600 rounded-full"></span>
+                </button>
+                <button id="tab-waiting" onclick="switchTab('waiting')" class="pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700 flex items-center gap-2">
+                    Waiting On <span id="count-waiting" class="text-xs font-medium px-2 py-0.5 bg-zinc-100 text-zinc-500 rounded-full"></span>
+                </button>
+                <button id="tab-files" onclick="switchTab('files')" class="pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700 flex items-center gap-2">
+                    With Files <span id="count-files" class="text-xs font-medium px-2 py-0.5 bg-zinc-100 text-zinc-500 rounded-full"></span>
+                </button>
+                <button id="tab-all" onclick="switchTab('all')" class="pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700">All Recent</button>
             </div>
 
+            <!-- Main Content -->
+            <div class="flex-1 flex gap-6 min-h-0 overflow-hidden">
+                
+                <!-- Email List -->
+                <div class="w-[420px] shrink-0 flex flex-col h-full min-h-0 border border-zinc-200 rounded-3xl bg-white overflow-hidden">
+                    <div id="email-list" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+                    <div id="pagination-controls" class="border-t bg-zinc-50 px-4 py-3 flex items-center justify-center gap-1 shrink-0"></div>
+                </div>
+
+                <!-- Reading Pane -->
+                <div id="reading-pane" class="flex-1 bg-white border border-zinc-200 rounded-3xl overflow-hidden flex-col reading-pane hidden md:flex">
+                    
+                    <!-- Placeholder -->
+                    <div id="pane-placeholder" class="flex-1 flex items-center justify-center text-center p-8">
+                        <div>
+                            <i class="fa-regular fa-envelope text-6xl text-zinc-200 mb-4"></i>
+                            <p class="text-zinc-400">Select an email to read its details</p>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div id="pane-content" class="hidden flex-col h-full">
+                        
+                        <!-- Pane Header -->
+                        <div class="px-8 pt-7 pb-6 border-b">
+                            <div class="flex justify-between items-start gap-4">
+                                <div class="flex-1 min-w-0">
+                                    <h1 id="pane-subject" class="text-[22px] font-semibold tracking-tight text-zinc-900 leading-tight"></h1>
+                                    
+                                    <div class="flex items-center gap-3 mt-5">
+                                        <div class="w-9 h-9 rounded-2xl bg-zinc-200 flex items-center justify-center font-semibold text-zinc-600 flex-shrink-0" id="pane-avatar"></div>
+                                        <div class="min-w-0">
+                                            <div id="pane-sender" class="font-semibold text-zinc-800"></div>
+                                            <div id="pane-date" class="text-xs text-zinc-500 mt-0.5"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <a id="pane-gmail-link" href="#" target="_blank"
+                                       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border border-zinc-300 hover:bg-zinc-50 rounded-2xl transition">
+                                        <span>Open in Gmail</span>
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="px-8 py-4 border-b flex items-center gap-3 bg-zinc-50/50">
+                            <button class="px-5 py-2 text-sm font-medium bg-zinc-900 hover:bg-black text-white rounded-2xl flex items-center gap-2 transition">
+                                <i class="fa-solid fa-reply text-xs"></i>
+                                <span>Reply</span>
+                            </button>
+                            <button class="px-5 py-2 text-sm font-medium border border-zinc-300 hover:bg-white rounded-2xl flex items-center gap-2 transition">
+                                <i class="fa-solid fa-check text-xs"></i>
+                                <span>Mark as done</span>
+                            </button>
+                            <button class="px-5 py-2 text-sm font-medium border border-zinc-300 hover:bg-white rounded-2xl flex items-center gap-2 transition">
+                                <i class="fa-solid fa-clock text-xs"></i>
+                                <span>Snooze</span>
+                            </button>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="flex-1 overflow-y-auto px-8 py-7">
+                            <div id="pane-body" class="text-[15px] leading-relaxed text-zinc-700 whitespace-pre-line"></div>
+                            
+                            <!-- Attachment indicator in pane -->
+                            <div id="pane-attachment" class="hidden mt-6 pt-5 border-t text-sm text-zinc-600 flex items-center gap-2">
+                                <i class="fa-solid fa-paperclip"></i>
+                                <span>This email has attachments</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -125,17 +198,16 @@
         const CLIENT_ID = "723260356706-cu25kknrqn5fn5h95r4j2n1icv17qlkh.apps.googleusercontent.com";
         let accessToken = null;
         let tokenClient;
-        
-        let cachedEmails = []; 
+        let userEmail = null;
+
+        let cachedEmails = [];
         let currentTab = 'reply';
         let selectedEmailId = null;
-
-        // --- PAGINATION STATE ---
-        const PAGE_SIZE = 12; 
         let currentSearchQuery = "";
-        let currentPageIndex = 1; 
-        let pageTokensArray = { 1: null }; 
+        let currentPageIndex = 1;
+        let pageTokensArray = { 1: null };
         let hasNextPageToken = false;
+        const PAGE_SIZE = 12;
 
         window.onload = function () {
             tokenClient = google.accounts.oauth2.initTokenClient({
@@ -147,58 +219,67 @@
                         return;
                     }
                     accessToken = response.access_token;
-                    
+
                     document.getElementById("landing").classList.add("hidden");
                     document.getElementById("dashboard").classList.remove("hidden");
-                    
-                    const actionBtn = document.getElementById("nav-action-btn");
-                    actionBtn.innerText = "Sign Out";
-                    actionBtn.setAttribute("onclick", "logout()");
+                    document.getElementById("user-header").classList.remove("hidden");
+                    document.getElementById("user-header").classList.add("flex");
 
+                    await fetchUserProfile();
                     await fetchEmails();
                 }
             });
         };
 
-        function loginWithGoogle() { tokenClient.requestAccessToken({ prompt: 'select_account' }); }
+        async function fetchUserProfile() {
+            try {
+                const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/profile", {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                });
+                const data = await res.json();
+                userEmail = data.emailAddress;
+                document.getElementById("user-email").innerText = userEmail;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function loginWithGoogle() {
+            tokenClient.requestAccessToken({ prompt: 'select_account' });
+        }
+
+        function logout() {
+            accessToken = null;
+            location.reload();
+        }
 
         function handleSearch(event) {
             event.preventDefault();
             currentSearchQuery = document.getElementById("search-input").value.trim();
-            
             currentPageIndex = 1;
             pageTokensArray = { 1: null };
             hasNextPageToken = false;
-            
-            if(window.innerWidth < 768) goBackToList();
             fetchEmails();
         }
 
         async function fetchEmails() {
             const emailList = document.getElementById("email-list");
-            const emailsSection = document.getElementById("emails-section");
-            emailsSection.classList.remove("hidden");
-            
-            emailList.innerHTML = Array(4).fill(0).map(() => `
-                <div class="bg-white border border-zinc-200 rounded-2xl p-5 space-y-3 animate-pulse">
-                    <div class="flex justify-between">
-                        <div class="h-4 bg-zinc-200 rounded w-1/3"></div>
-                        <div class="h-3 bg-zinc-200 rounded w-12"></div>
+            emailList.innerHTML = Array(5).fill(0).map(() => `
+                <div class="bg-white border border-zinc-200 rounded-2xl p-5 animate-pulse">
+                    <div class="flex justify-between mb-3">
+                        <div class="h-4 bg-zinc-200 rounded w-2/5"></div>
+                        <div class="h-3 bg-zinc-200 rounded w-10"></div>
                     </div>
-                    <div class="h-4 bg-zinc-200 rounded w-3/4"></div>
+                    <div class="h-4 bg-zinc-200 rounded w-4/5"></div>
                 </div>
             `).join('');
+
             document.getElementById("pagination-controls").innerHTML = "";
 
             try {
                 let url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=${PAGE_SIZE}`;
-                
-                if (currentSearchQuery) {
-                    url += `&q=${encodeURIComponent(currentSearchQuery)}`;
-                }
-                if (pageTokensArray[currentPageIndex]) {
-                    url += `&pageToken=${pageTokensArray[currentPageIndex]}`;
-                }
+                if (currentSearchQuery) url += `&q=${encodeURIComponent(currentSearchQuery)}`;
+                if (pageTokensArray[currentPageIndex]) url += `&pageToken=${pageTokensArray[currentPageIndex]}`;
 
                 const listRes = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
                 const listData = await listRes.json();
@@ -211,129 +292,106 @@
                 }
 
                 if (!listData.messages || listData.messages.length === 0) {
-                    emailList.innerHTML = `<p class="text-zinc-500 text-center text-xs py-8">No matching emails found.</p>`;
+                    emailList.innerHTML = `<div class="text-center py-16 text-zinc-400"><p class="text-sm">No emails found</p></div>`;
                     renderPaginationControls();
                     return;
                 }
 
                 const emailPromises = listData.messages.map(msg =>
-                    fetch(
-                        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date&metadataHeaders=X-MS-Has-Attach`,
-                        { headers: { Authorization: `Bearer ${accessToken}` } }
-                    ).then(r => r.json())
+                    fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date&metadataHeaders=X-MS-Has-Attach`, {
+                        headers: { Authorization: `Bearer ${accessToken}` }
+                    }).then(r => r.json())
                 );
 
                 const rawEmails = await Promise.all(emailPromises);
-                
+
                 const replyKeywords = ["action required", "please reply", "respond by", "let me know", "your thoughts", "feedback needed", "urgent", "deadline"];
                 const waitingKeywords = ["following up", "follow up", "status update", "any update", "checking in", "waiting on"];
-                const fileKeywords = ["invoice", "receipt", "attachment", "attached", "pdf", "doc", "sheet"];
 
                 cachedEmails = rawEmails.map(emailData => {
                     const headers = emailData.payload?.headers || [];
-                    const from = headers.find(h => h.name.toLowerCase() === "from")?.value || "Unknown Sender";
+                    const from = headers.find(h => h.name.toLowerCase() === "from")?.value || "Unknown";
                     const subject = headers.find(h => h.name.toLowerCase() === "subject")?.value || "(No Subject)";
                     const dateString = headers.find(h => h.name.toLowerCase() === "date")?.value;
                     const snippet = emailData.snippet || "";
 
-                    let formattedDate = "Unknown Date";
+                    let formattedDate = "Unknown";
                     if (dateString) {
-                        const parsedDate = new Date(dateString);
-                        if (!isNaN(parsedDate.getTime())) {
-                            formattedDate = parsedDate.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+                        const d = new Date(dateString);
+                        if (!isNaN(d.getTime())) {
+                            const today = new Date();
+                            if (d.toDateString() === today.toDateString()) formattedDate = "Today";
+                            else if (d.toDateString() === new Date(today.setDate(today.getDate()-1)).toDateString()) formattedDate = "Yesterday";
+                            else formattedDate = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
                         }
                     }
 
                     const senderName = from.split("<")[0].trim() || from;
-                    const fullTextToScan = `${subject} ${snippet}`.toLowerCase();
+                    const fullText = `${subject} ${snippet}`.toLowerCase();
+
                     let category = 'all';
+                    if (replyKeywords.some(k => fullText.includes(k)) || fullText.includes("?")) category = 'reply';
+                    else if (waitingKeywords.some(k => fullText.includes(k))) category = 'waiting';
+                    else if (headers.some(h => h.name === "X-MS-Has-Attach" && h.value === "yes")) category = 'files';
 
-                    if (replyKeywords.some(k => fullTextToScan.includes(k)) || fullTextToScan.includes("?")) category = 'reply';
-                    else if (waitingKeywords.some(k => fullTextToScan.includes(k))) category = 'waiting';
-                    else if (fileKeywords.some(k => fullTextToScan.includes(k))) category = 'files';
+                    const hasAttachment = headers.some(h => h.name === "X-MS-Has-Attach" && h.value === "yes");
 
-                    const gmailLink = `https://mail.google.com/mail/u/0/#inbox/${emailData.id}`;
-                    return { id: emailData.id, senderName, subject, formattedDate, snippet, category, gmailLink };
+                    return {
+                        id: emailData.id,
+                        senderName,
+                        subject,
+                        formattedDate,
+                        snippet,
+                        category,
+                        hasAttachment,
+                        gmailLink: `https://mail.google.com/mail/u/0/#inbox/${emailData.id}`
+                    };
                 });
 
                 renderEmails();
                 renderPaginationControls();
-
+                updateTabCounts();
             } catch (err) {
-                console.error("Fetch failure:", err);
-                emailList.innerHTML = `<div class="text-red-500 text-xs p-4">Error loading emails.</div>`;
+                console.error(err);
+                emailList.innerHTML = `<div class="p-6 text-red-500 text-sm">Failed to load emails.</div>`;
             }
         }
 
-        function renderPaginationControls() {
-            const container = document.getElementById("pagination-controls");
-            container.innerHTML = "";
-
-            // Left arrow
-            const prevBtn = document.createElement("button");
-            prevBtn.className = `px-2 py-1 text-xs font-medium rounded-md border ${currentPageIndex === 1 ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
-            prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left text-[10px]"></i>`;
-            if (currentPageIndex > 1) prevBtn.onclick = () => jumpToPage(currentPageIndex - 1);
-            container.appendChild(prevBtn);
-
-            // Display selection links (1, 2, 3...)
-            const startPage = Math.max(1, currentPageIndex - 1);
-            const totalKnownPages = hasNextPageToken ? currentPageIndex + 1 : currentPageIndex;
-
-            for (let i = startPage; i <= totalKnownPages; i++) {
-                const pageBtn = document.createElement("button");
-                const isCurrent = (i === currentPageIndex);
-                pageBtn.className = `w-7 h-7 text-xs font-semibold rounded-md transition ${isCurrent ? 'bg-blue-600 text-white' : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'}`;
-                pageBtn.innerText = i;
-                pageBtn.onclick = () => jumpToPage(i);
-                container.appendChild(pageBtn);
-            }
-
-            // Right arrow
-            const nextBtn = document.createElement("button");
-            nextBtn.className = `px-2 py-1 text-xs font-medium rounded-md border ${!hasNextPageToken ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
-            nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right text-[10px]"></i>`;
-            if (hasNextPageToken) nextBtn.onclick = () => jumpToPage(currentPageIndex + 1);
-            container.appendChild(nextBtn);
-        }
-
-        function jumpToPage(pageNumber) {
-            if (pageNumber === currentPageIndex) return;
-            currentPageIndex = pageNumber;
-            if(window.innerWidth < 768) goBackToList();
-            fetchEmails();
+        function updateTabCounts() {
+            document.getElementById("count-reply").innerText = cachedEmails.filter(e => e.category === 'reply').length || "";
+            document.getElementById("count-waiting").innerText = cachedEmails.filter(e => e.category === 'waiting').length || "";
+            document.getElementById("count-files").innerText = cachedEmails.filter(e => e.category === 'files').length || "";
         }
 
         function renderEmails() {
-            const emailList = document.getElementById("email-list");
-            if(window.innerWidth < 768 && selectedEmailId) return;
+            const container = document.getElementById("email-list");
+            container.innerHTML = "";
 
-            emailList.innerHTML = "";
             const filtered = cachedEmails.filter(email => currentTab === 'all' || email.category === currentTab);
 
             if (filtered.length === 0) {
-                emailList.innerHTML = `
-                    <div class="text-center py-12 text-zinc-400 border border-dashed rounded-2xl bg-zinc-50/50">
-                        <i class="fa-solid fa-inbox text-2xl mb-2 text-zinc-300"></i>
-                        <p class="text-xs font-medium">No items found on this page</p>
-                    </div>`;
+                container.innerHTML = `<div class="text-center py-16 px-6 text-zinc-400"><p class="text-sm">No emails in this category</p></div>`;
                 return;
             }
 
             filtered.forEach(email => {
                 const isSelected = email.id === selectedEmailId;
                 const card = document.createElement("div");
-                card.className = `p-5 rounded-2xl border transition cursor-pointer text-left flex flex-col gap-1.5 ${isSelected ? 'bg-blue-50/60 border-blue-500 shadow-sm' : 'bg-white border-zinc-200 hover:border-zinc-300'}`;
-                card.onclick = () => selectEmail(email.id);
+                card.className = `email-card p-5 rounded-2xl border cursor-pointer ${isSelected ? 'selected border-blue-500' : 'bg-white border-zinc-200 hover:border-zinc-300'}`;
+
                 card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <span class="font-semibold text-sm truncate max-w-[75%]">${email.senderName}</span>
-                        <span class="text-[11px] font-medium text-zinc-400">${email.formattedDate}</span>
+                    <div class="flex justify-between items-start mb-1.5">
+                        <span class="font-semibold text-sm truncate pr-3">${email.senderName}</span>
+                        <span class="text-[11px] text-zinc-400">${email.formattedDate}</span>
                     </div>
-                    <div class="font-medium text-zinc-800 text-sm line-clamp-1">${email.subject}</div>
-                    <div class="text-xs text-zinc-400 line-clamp-2 mt-0.5">${email.snippet}</div>
+                    <div class="font-medium text-zinc-800 text-[15px] line-clamp-1 mb-1">${email.subject}</div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-zinc-500 line-clamp-1 pr-3">${email.snippet}</span>
+                        ${email.hasAttachment ? `<i class="fa-solid fa-paperclip text-zinc-400"></i>` : ''}
+                    </div>
                 `;
-                emailList.appendChild(card);
+                card.onclick = () => selectEmail(email.id);
+                container.appendChild(card);
             });
         }
 
@@ -342,16 +400,6 @@
             const email = cachedEmails.find(e => e.id === id);
             if (!email) return;
 
-            const listEl = document.getElementById("email-list");
-            const paneEl = document.getElementById("reading-pane");
-            
-            if(window.innerWidth < 768) {
-                listEl.classList.remove("block");
-                listEl.classList.add("hidden");
-                paneEl.classList.remove("hidden");
-                paneEl.classList.add("flex");
-            }
-
             document.getElementById("pane-placeholder").classList.add("hidden");
             const content = document.getElementById("pane-content");
             content.classList.remove("hidden");
@@ -359,26 +407,19 @@
 
             document.getElementById("pane-subject").innerText = email.subject;
             document.getElementById("pane-sender").innerText = email.senderName;
-            document.getElementById("pane-body").innerText = email.snippet; 
+            document.getElementById("pane-date").innerText = email.formattedDate;
+            document.getElementById("pane-body").innerText = email.snippet;
             document.getElementById("pane-avatar").innerText = email.senderName.charAt(0).toUpperCase();
+            document.getElementById("pane-gmail-link").href = email.gmailLink;
 
-            document.getElementById("pane-date-container").innerHTML = `
-                <div class="flex flex-col items-end gap-2">
-                    <span class="text-xs text-zinc-400 font-medium bg-zinc-50 px-2.5 py-1 rounded-md border">${email.formattedDate}</span>
-                    <a href="${email.gmailLink}" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-medium mt-1">
-                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Open in Gmail
-                    </a>
-                </div>
-            `;
-            renderEmails();
-        }
+            // Show attachment notice in pane
+            const attachmentNotice = document.getElementById("pane-attachment");
+            if (email.hasAttachment) {
+                attachmentNotice.classList.remove("hidden");
+            } else {
+                attachmentNotice.classList.add("hidden");
+            }
 
-        function goBackToList() {
-            selectedEmailId = null;
-            document.getElementById("email-list").classList.remove("hidden");
-            document.getElementById("email-list").classList.add("block");
-            document.getElementById("reading-pane").classList.remove("flex");
-            document.getElementById("reading-pane").classList.add("hidden");
             renderEmails();
         }
 
@@ -386,15 +427,39 @@
             currentTab = tabId;
             ['reply', 'waiting', 'files', 'all'].forEach(id => {
                 const el = document.getElementById(`tab-${id}`);
-                el.className = id === tabId ? "pb-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600" : "pb-3 text-sm font-medium text-zinc-500 border-b-2 border-transparent hover:text-zinc-800";
+                if (id === tabId) {
+                    el.className = "pb-4 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 flex items-center gap-2";
+                } else {
+                    el.className = "pb-4 text-sm font-medium text-zinc-500 hover:text-zinc-700 flex items-center gap-2";
+                }
             });
-            if(window.innerWidth < 768) goBackToList();
-            else renderEmails();
+            renderEmails();
         }
 
-        function logout() {
-            accessToken = null;
-            location.reload();
+        function renderPaginationControls() {
+            const container = document.getElementById("pagination-controls");
+            container.innerHTML = "";
+
+            const prevBtn = document.createElement("button");
+            prevBtn.className = `px-3 py-1 text-xs font-medium rounded-xl border ${currentPageIndex === 1 ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
+            prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left text-xs"></i>`;
+            if (currentPageIndex > 1) prevBtn.onclick = () => { currentPageIndex--; fetchEmails(); };
+            container.appendChild(prevBtn);
+
+            const totalPages = hasNextPageToken ? currentPageIndex + 1 : currentPageIndex;
+            for (let i = Math.max(1, currentPageIndex - 1); i <= totalPages; i++) {
+                const btn = document.createElement("button");
+                btn.className = `w-8 h-8 text-xs font-semibold rounded-xl transition ${i === currentPageIndex ? 'bg-blue-600 text-white' : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'}`;
+                btn.innerText = i;
+                btn.onclick = () => { currentPageIndex = i; fetchEmails(); };
+                container.appendChild(btn);
+            }
+
+            const nextBtn = document.createElement("button");
+            nextBtn.className = `px-3 py-1 text-xs font-medium rounded-xl border ${!hasNextPageToken ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
+            nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right text-xs"></i>`;
+            if (hasNextPageToken) nextBtn.onclick = () => { currentPageIndex++; fetchEmails(); };
+            container.appendChild(nextBtn);
         }
     </script>
 </body>
