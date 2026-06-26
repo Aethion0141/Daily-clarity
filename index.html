@@ -89,9 +89,16 @@
 
             <!-- Search -->
             <div class="mb-5 max-w-md shrink-0">
-                <form onsubmit="handleSearch(event)" class="relative">
-                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-zinc-400"></i>
-                    <input id="search-input" type="text" placeholder="Search emails..." class="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <form onsubmit="handleSearch(event)" class="flex items-center gap-2">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-search absolute left-4 top-3.5 text-zinc-400"></i>
+                        <input id="search-input" type="text" placeholder="Search emails..." 
+                               class="w-full pl-11 pr-4 py-3 bg-white border border-zinc-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    </div>
+                    <button type="submit" 
+                            class="px-6 py-3 bg-zinc-900 hover:bg-black text-white text-sm font-medium rounded-2xl transition flex items-center gap-2">
+                        Search
+                    </button>
                 </form>
             </div>
 
@@ -121,7 +128,6 @@
                 <!-- Reading Pane -->
                 <div id="reading-pane" class="flex-1 bg-white border border-zinc-200 rounded-3xl overflow-hidden flex-col reading-pane hidden md:flex">
                     
-                    <!-- Placeholder -->
                     <div id="pane-placeholder" class="flex-1 flex items-center justify-center text-center p-8">
                         <div>
                             <i class="fa-regular fa-envelope text-6xl text-zinc-200 mb-4"></i>
@@ -129,7 +135,6 @@
                         </div>
                     </div>
 
-                    <!-- Content -->
                     <div id="pane-content" class="hidden flex-col h-full">
                         
                         <!-- Pane Header -->
@@ -147,9 +152,7 @@
                             </div>
 
                             <div class="flex items-center gap-3">
-                                <!-- Close Button -->
-                                <button onclick="closeReadingPane()" 
-                                        class="text-zinc-400 hover:text-zinc-600 transition p-2">
+                                <button onclick="closeReadingPane()" class="text-zinc-400 hover:text-zinc-600 transition p-2">
                                     <i class="fa-solid fa-times text-xl"></i>
                                 </button>
 
@@ -161,7 +164,7 @@
                             </div>
                         </div>
 
-                        <!-- Quick Actions -->
+                        <!-- Dark Action Buttons -->
                         <div class="px-8 py-4 border-b flex items-center gap-3 bg-zinc-50/50">
                             <button class="px-5 py-2 text-sm font-medium bg-zinc-900 hover:bg-black text-white rounded-2xl flex items-center gap-2 transition">
                                 <i class="fa-solid fa-reply text-xs"></i>
@@ -427,27 +430,33 @@
             const container = document.getElementById("pagination-controls");
             container.innerHTML = "";
 
+            // Previous
             const prevBtn = document.createElement("button");
-            prevBtn.className = `px-3 py-1 text-xs font-medium rounded-xl border ${currentPageIndex === 1 ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
+            prevBtn.className = `px-3 py-1.5 text-xs font-medium rounded-xl border transition ${currentPageIndex === 1 ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
             prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left text-xs"></i>`;
             if (currentPageIndex > 1) prevBtn.onclick = () => { currentPageIndex--; fetchEmails(); };
             container.appendChild(prevBtn);
 
+            // Page numbers
             const totalPages = hasNextPageToken ? currentPageIndex + 1 : currentPageIndex;
             for (let i = Math.max(1, currentPageIndex - 1); i <= totalPages; i++) {
                 const btn = document.createElement("button");
-                btn.className = `w-8 h-8 text-xs font-semibold rounded-xl transition ${i === currentPageIndex ? 'bg-blue-600 text-white' : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'}`;
+                const isActive = i === currentPageIndex;
+                btn.className = `w-8 h-8 text-xs font-semibold rounded-xl transition ${isActive 
+                    ? 'bg-zinc-900 text-white' 
+                    : 'bg-white text-zinc-600 border border-zinc-200 hover:bg-zinc-50'}`;
                 btn.innerText = i;
                 btn.onclick = () => { currentPageIndex = i; fetchEmails(); };
                 container.appendChild(btn);
             }
 
+            // Next
             const nextBtn = document.createElement("button");
-            nextBtn.className = `px-3 py-1 text-xs font-medium rounded-xl border ${!hasNextPageToken ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
+            nextBtn.className = `px-3 py-1.5 text-xs font-medium rounded-xl border transition ${!hasNextPageToken ? 'text-zinc-300 border-zinc-200 cursor-not-allowed' : 'text-zinc-600 bg-white hover:bg-zinc-50'}`;
             nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right text-xs"></i>`;
             if (hasNextPageToken) nextBtn.onclick = () => { currentPageIndex++; fetchEmails(); };
             container.appendChild(nextBtn);
         }
     </script>
-  </body>
- </html>
+</body>
+</html>
